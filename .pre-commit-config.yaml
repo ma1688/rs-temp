@@ -13,45 +13,47 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
+      - id: template-smoke
+        name: template smoke test
+        description: Expand the template and validate the generated project.
+        entry: python scripts/validate_repo.py template-smoke
+        language: python
+        files: ^(Cargo\.toml|Cargo\.lock|cargo-generate\.toml|deny\.toml|cliff\.toml|LICENSE-MIT|src/.*\.rs|scripts/.*\.py|\.github/workflows/.*\.ya?ml)$
+        pass_filenames: false
       - id: cargo-fmt
         name: cargo fmt
         description: Format files with rustfmt.
-        entry: cargo
-        language: system
+        entry: python scripts/validate_repo.py fmt
+        language: python
         files: \.rs$|Cargo\.toml$
-        args: ["fmt", "--", "--check"]
         pass_filenames: false
       - id: cargo-check
         name: cargo check
         description: Check the package for errors.
-        entry: cargo
-        language: system
+        entry: python scripts/validate_repo.py check
+        language: python
         files: \.rs$|Cargo\.toml$
-        args: ["check", "--all-targets"]
         pass_filenames: false
       - id: cargo-deny
         name: cargo deny check
         description: Check dependency advisories and licenses.
-        entry: cargo
-        language: system
+        entry: python scripts/validate_repo.py deny
+        language: python
         files: Cargo\.toml$|Cargo\.lock$
-        args: ["deny", "check", "-d"]
         pass_filenames: false
       - id: cargo-clippy
         name: cargo clippy
         description: Lint rust sources
-        entry: cargo
-        language: system
+        entry: python scripts/validate_repo.py clippy
+        language: python
         files: \.rs$|Cargo\.toml$
-        args: ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
         pass_filenames: false
       - id: cargo-test
         name: cargo test
         description: Run project tests.
-        entry: cargo
-        language: system
+        entry: python scripts/validate_repo.py test
+        language: python
         files: \.rs$|Cargo\.toml$
-        args: ["test", "--all-targets", "--all-features"]
         pass_filenames: false
       - id: typos
         name: typos

@@ -1,0 +1,8 @@
+[template]
+cargo_generate_version = "0.23.0"
+ignore = ["target"]
+exclude = [".github", "scripts"]
+
+[placeholders]
+project_description = { prompt = "Project description", default = "A Rust CLI application", type = "string" }
+github_user = { prompt = "GitHub user or organization", default = "your-github-name", type = "string", regex = "^[A-Za-z0-9_.-]+$" }

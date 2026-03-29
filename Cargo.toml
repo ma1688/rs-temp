@@ -1,15 +1,15 @@
 [package]
-name = "rs_temp"
+name = "{{ crate_name }}"
 version = "0.1.0"
 edition = "2024"
-authors = ["ma1688 <764575877@qq.com>"]
-description = "rstemp"
+authors = ["{{ authors }}"]
+description = "{{ project_description }}"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ma1688/rs-temp.git"
+repository = "https://github.com/{{ github_user }}/{{ project-name }}.git"
 rust-version = "1.85"
-# homepage = "https://example.com"
-# documentation = "https://docs.rs/rs_temp"
+# homepage = "https://github.com/{{ github_user }}/{{ project-name }}"
+# documentation = "https://docs.rs/{{ crate_name }}"
 # keywords = ["cli", "template"]
 # categories = ["command-line-utilities"]
 

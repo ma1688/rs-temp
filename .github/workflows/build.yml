@@ -16,21 +16,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
-        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.85.0
+          components: rustfmt, clippy
+      - name: Detect template mode
+        id: detect-template
+        shell: bash
+        run: |
+          if grep -q '{{' Cargo.toml; then
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install cargo-generate
+        if: steps.detect-template.outputs.is_template == 'true'
+        uses: taiki-e/install-action@cargo-generate
       - name: Install cargo-deny
+        if: steps.detect-template.outputs.is_template == 'false'
         uses: taiki-e/install-action@cargo-deny
       - name: Install typos
+        if: steps.detect-template.outputs.is_template == 'false'
         uses: taiki-e/install-action@typos
       - uses: Swatinem/rust-cache@v2
+      - name: Smoke test template generation
+        if: steps.detect-template.outputs.is_template == 'true'
+        run: python scripts/validate_repo.py template-smoke
       - name: Check code format
+        if: steps.detect-template.outputs.is_template == 'false'
         run: cargo fmt -- --check
       - name: Check the package for errors
-        run: cargo check --all-targets
+        if: steps.detect-template.outputs.is_template == 'false'
+        run: cargo check --all-targets --locked
       - name: Lint rust sources
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        if: steps.detect-template.outputs.is_template == 'false'
+        run: cargo clippy --all-targets --all-features --locked -- -D warnings
       - name: Execute rust tests
-        run: cargo test --all-targets --all-features
+        if: steps.detect-template.outputs.is_template == 'false'
+        run: cargo test --all-targets --all-features --locked
       - name: Check dependency policies
-        run: cargo deny check -d
+        if: steps.detect-template.outputs.is_template == 'false'
+        run: cargo deny check
       - name: Check spelling
+        if: steps.detect-template.outputs.is_template == 'false'
         run: typos

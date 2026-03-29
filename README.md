@@ -1,6 +1,6 @@
-# rs-temp
+# {{ project-name }}
 
-rstemp
+{{ project_description }}
 
 ## Quick start
 
@@ -9,6 +9,8 @@ cargo run
 ```
 
 ## Useful commands
+
+These commands apply after you generate a project from the template.
 
 ```bash
 cargo fmt
@@ -27,26 +29,29 @@ cargo test
 ## Optional tool setup
 
 ```bash
+python -m pip install pre-commit
 cargo install --locked cargo-deny
 cargo install typos-cli
 cargo install git-cliff
+cargo install cargo-generate
 ```
 
 ## Generate from this template
 
 ```bash
-cargo generate --path . --name my_app
+cargo generate --path . --name my-app
 ```
 
 After you publish this fixed template to your own GitHub repository:
 
 ```bash
-cargo generate gh:<owner>/<repo> --name my_app
+cargo generate gh:<owner>/<repo> --name my-app
 ```
 
 ## Notes
 
 - Replace the sample code in `src/main.rs` with your project logic.
-- Adjust package metadata in `Cargo.toml` to match your release policy.
-- Update `repository`, optional `homepage`, and optional `documentation` metadata after generation.
+- Review the generated package metadata in `Cargo.toml` before your first release.
+- If you use `pre-commit` in the template repository, install `pre-commit`, `cargo-generate`, `cargo-deny`, and `typos-cli` first.
+- Generated projects only need the regular Rust tooling and any hooks you keep enabled.
 - Update `cliff.toml` with your own repository URL before generating changelogs.
