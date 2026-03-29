@@ -1,0 +1,18 @@
+[package]
+name = "rs_temp"
+version = "0.1.0"
+edition = "2024"
+authors = ["ma1688 <764575877@qq.com>"]
+description = "rstemp"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ma1688/rs-temp.git"
+rust-version = "1.85"
+# homepage = "https://example.com"
+# documentation = "https://docs.rs/rs_temp"
+# keywords = ["cli", "template"]
+# categories = ["command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

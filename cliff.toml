@@ -1,0 +1,48 @@
+# git-cliff configuration
+# Update the repository URL below after generating a new project.
+
+[changelog]
+header = """
+# Changelog
+
+All notable changes to this project will be documented in this file.
+"""
+body = """
+{% if version -%}
+## [{{ version | trim_start_matches(pat="v") }}]($REPO/compare/{{ previous.version | default(value="HEAD") }}..{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{%- else -%}
+## [unreleased]
+{%- endif %}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | trim }} ([{{ commit.id | truncate(length=7, end="") }}]($REPO/commit/{{ commit.id }}))
+{% endfor %}
+
+{% endfor %}
+"""
+trim = true
+postprocessors = [
+    { pattern = '\$REPO', replace = "https://github.com/OWNER/REPO" },
+]
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+commit_parsers = [
+    { message = "^feat", group = "Features" },
+    { message = "^fix", group = "Bug Fixes" },
+    { message = "^doc", group = "Documentation" },
+    { message = "^perf", group = "Performance" },
+    { message = "^refactor", group = "Refactoring" },
+    { message = "^style", group = "Style" },
+    { message = "^test", group = "Tests" },
+    { message = "^chore", group = "Chores" },
+    { message = ".*", group = "Other" },
+]
+protect_breaking_commits = false
+filter_commits = false
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"

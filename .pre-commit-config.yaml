@@ -1,0 +1,62 @@
+fail_fast: false
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        description: Format files with rustfmt.
+        entry: cargo
+        language: system
+        files: \.rs$|Cargo\.toml$
+        args: ["fmt", "--", "--check"]
+        pass_filenames: false
+      - id: cargo-check
+        name: cargo check
+        description: Check the package for errors.
+        entry: cargo
+        language: system
+        files: \.rs$|Cargo\.toml$
+        args: ["check", "--all-targets"]
+        pass_filenames: false
+      - id: cargo-deny
+        name: cargo deny check
+        description: Check dependency advisories and licenses.
+        entry: cargo
+        language: system
+        files: Cargo\.toml$|Cargo\.lock$
+        args: ["deny", "check", "-d"]
+        pass_filenames: false
+      - id: cargo-clippy
+        name: cargo clippy
+        description: Lint rust sources
+        entry: cargo
+        language: system
+        files: \.rs$|Cargo\.toml$
+        args: ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+        pass_filenames: false
+      - id: cargo-test
+        name: cargo test
+        description: Run project tests.
+        entry: cargo
+        language: system
+        files: \.rs$|Cargo\.toml$
+        args: ["test", "--all-targets", "--all-features"]
+        pass_filenames: false
+      - id: typos
+        name: typos
+        description: Check spelling in source and docs.
+        entry: typos
+        language: system
+        files: \.rs$|\.md$|Cargo\.toml$
+        pass_filenames: false
