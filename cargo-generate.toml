@@ -2,8 +2,10 @@
 # Reference: https://cargo-generate.github.io/cargo-generate/templates/template_config.html
 
 [template]
-# Oldest cargo-generate release able to render this template correctly.
-cargo_generate_version = "0.23.0"
+# Minimum cargo-generate release able to render this template correctly.
+# Written as an explicit semver range on purpose: a bare "0.23.0" is read as
+# "^0.23.0", which rejects every newer 0.x release.
+cargo_generate_version = ">=0.23.0"
 # Never copied into a generated project.
 ignore = ["target", "__pycache__", "*.pyc"]
 # Copied byte for byte, without liquid rendering. Those trees use GitHub Actions
