@@ -28,7 +28,7 @@ jobs:
     outputs:
       is_template: ${{ steps.probe.outputs.is_template }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Probe Cargo.toml for cargo-generate placeholders
         id: probe
         shell: bash
@@ -46,17 +46,21 @@ jobs:
     if: needs.detect.outputs.is_template == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      # cargo-generate is not in taiki-e/install-action's tool list, so build it
+      # once and let the cache action reuse the binary on later runs.
       - name: Install cargo-generate
-        uses: taiki-e/install-action@cargo-generate
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@cargo-deny
-      - name: Install typos
-        uses: taiki-e/install-action@typos
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-generate
+      - name: Install cargo-deny and typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny,typos
       # cargo-generate derives the `authors` placeholder from git config.
       - name: Configure git identity
         run: |
@@ -74,15 +78,15 @@ jobs:
     if: needs.detect.outputs.is_template == 'false'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@cargo-deny
-      - name: Install typos
-        uses: taiki-e/install-action@typos
+      - name: Install cargo-deny and typos
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny,typos
       - uses: Swatinem/rust-cache@v2
       - name: Run repository checks
         run: python3 scripts/validate_repo.py all
@@ -93,7 +97,7 @@ jobs:
     if: needs.detect.outputs.is_template == 'false'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install minimum supported Rust
         uses: dtolnay/rust-toolchain@1.85.0
       - uses: Swatinem/rust-cache@v2
