@@ -1,5 +1,7 @@
-# git-cliff configuration
-# Update the repository URL below after generating a new project.
+# git-cliff configuration.
+# The repository URL is filled in by cargo-generate (see the postprocessor
+# below), so nothing has to be edited by hand after generating a project.
+# Result: git-cliff --unreleased --output CHANGELOG.md
 
 [changelog]
 header = """

@@ -1,8 +1,22 @@
+# cargo-generate configuration for this template.
+# Reference: https://cargo-generate.github.io/cargo-generate/templates/template_config.html
+
 [template]
+# Oldest cargo-generate release able to render this template correctly.
 cargo_generate_version = "0.23.0"
-ignore = ["target"]
+# Never copied into a generated project.
+ignore = ["target", "__pycache__", "*.pyc"]
+# Copied byte for byte, without liquid rendering. Those trees use GitHub Actions
+# expressions and Python source, which liquid would otherwise try to expand.
 exclude = [".github", "scripts"]
 
 [placeholders]
 project_description = { prompt = "Project description", default = "A Rust CLI application", type = "string" }
 github_user = { prompt = "GitHub user or organization", default = "your-github-name", type = "string", regex = "^[A-Za-z0-9_.-]+$" }
+
+# `project-name`, `crate_name`, `crate_type`, `authors` and `os-arch` are builtin
+# cargo-generate placeholders and must not be declared here.
+# `authors` is read from your git config, so run
+#   git config --global user.name "Your Name"
+#   git config --global user.email "you@example.com"
+# before generating if the generated author line looks wrong.

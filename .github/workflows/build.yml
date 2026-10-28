@@ -9,54 +9,93 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  build-rust:
+  detect:
+    name: detect template mode
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.probe.outputs.is_template }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe Cargo.toml for cargo-generate placeholders
+        id: probe
+        shell: bash
+        run: |
+          if grep -qF '{{' Cargo.toml; then
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
+  template-smoke:
+    name: template smoke test
+    needs: detect
+    if: needs.detect.outputs.is_template == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.85.0
           components: rustfmt, clippy
-      - name: Detect template mode
-        id: detect-template
-        shell: bash
-        run: |
-          if grep -q '{{' Cargo.toml; then
-            echo "is_template=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_template=false" >> "$GITHUB_OUTPUT"
-          fi
       - name: Install cargo-generate
-        if: steps.detect-template.outputs.is_template == 'true'
         uses: taiki-e/install-action@cargo-generate
       - name: Install cargo-deny
-        if: steps.detect-template.outputs.is_template == 'false'
         uses: taiki-e/install-action@cargo-deny
       - name: Install typos
-        if: steps.detect-template.outputs.is_template == 'false'
+        uses: taiki-e/install-action@typos
+      # cargo-generate derives the `authors` placeholder from git config.
+      - name: Configure git identity
+        run: |
+          git config --global user.name "template smoke"
+          git config --global user.email "smoke@example.com"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+      - name: Generate a project and validate it
+        run: python3 scripts/validate_repo.py all
+
+  quality:
+    name: quality checks
+    needs: detect
+    if: needs.detect.outputs.is_template == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+      - name: Install typos
         uses: taiki-e/install-action@typos
       - uses: Swatinem/rust-cache@v2
-      - name: Smoke test template generation
-        if: steps.detect-template.outputs.is_template == 'true'
-        run: python scripts/validate_repo.py template-smoke
-      - name: Check code format
-        if: steps.detect-template.outputs.is_template == 'false'
-        run: cargo fmt -- --check
-      - name: Check the package for errors
-        if: steps.detect-template.outputs.is_template == 'false'
+      - name: Run repository checks
+        run: python3 scripts/validate_repo.py all
+
+  msrv:
+    name: minimum supported Rust version
+    needs: detect
+    if: needs.detect.outputs.is_template == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install minimum supported Rust
+        uses: dtolnay/rust-toolchain@1.85.0
+      - uses: Swatinem/rust-cache@v2
+      - name: Check with the declared rust-version
         run: cargo check --all-targets --locked
-      - name: Lint rust sources
-        if: steps.detect-template.outputs.is_template == 'false'
-        run: cargo clippy --all-targets --all-features --locked -- -D warnings
-      - name: Execute rust tests
-        if: steps.detect-template.outputs.is_template == 'false'
-        run: cargo test --all-targets --all-features --locked
-      - name: Check dependency policies
-        if: steps.detect-template.outputs.is_template == 'false'
-        run: cargo deny check
-      - name: Check spelling
-        if: steps.detect-template.outputs.is_template == 'false'
-        run: typos

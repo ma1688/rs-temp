@@ -14,6 +14,9 @@ allow = [
   "CC0-1.0",
 ]
 confidence-threshold = 0.8
+# A fresh project has no dependencies, so most of the allowances above are
+# unused. Keep them ready without failing the check.
+unused-allowed-license = "allow"
 
 [licenses.private]
 ignore = false

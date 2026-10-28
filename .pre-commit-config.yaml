@@ -1,64 +1,30 @@
 fail_fast: false
+default_stages:
+  - pre-commit
+
+ci:
+  autoupdate_schedule: monthly
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v6.0.0
     hooks:
-      - id: check-byte-order-marker
+      - id: check-added-large-files
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-symlinks
+      - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
       - id: mixed-line-ending
+        args: [--fix=lf]
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: template-smoke
-        name: template smoke test
-        description: Expand the template and validate the generated project.
-        entry: python scripts/validate_repo.py template-smoke
+      - id: repo-checks
+        name: repo checks
+        description: fmt, check, clippy, test, deny and typos, on the template output or on the generated project itself.
+        entry: python scripts/validate_repo.py all
         language: python
-        files: ^(Cargo\.toml|Cargo\.lock|cargo-generate\.toml|deny\.toml|cliff\.toml|LICENSE-MIT|src/.*\.rs|scripts/.*\.py|\.github/workflows/.*\.ya?ml)$
-        pass_filenames: false
-      - id: cargo-fmt
-        name: cargo fmt
-        description: Format files with rustfmt.
-        entry: python scripts/validate_repo.py fmt
-        language: python
-        files: \.rs$|Cargo\.toml$
-        pass_filenames: false
-      - id: cargo-check
-        name: cargo check
-        description: Check the package for errors.
-        entry: python scripts/validate_repo.py check
-        language: python
-        files: \.rs$|Cargo\.toml$
-        pass_filenames: false
-      - id: cargo-deny
-        name: cargo deny check
-        description: Check dependency advisories and licenses.
-        entry: python scripts/validate_repo.py deny
-        language: python
-        files: Cargo\.toml$|Cargo\.lock$
-        pass_filenames: false
-      - id: cargo-clippy
-        name: cargo clippy
-        description: Lint rust sources
-        entry: python scripts/validate_repo.py clippy
-        language: python
-        files: \.rs$|Cargo\.toml$
-        pass_filenames: false
-      - id: cargo-test
-        name: cargo test
-        description: Run project tests.
-        entry: python scripts/validate_repo.py test
-        language: python
-        files: \.rs$|Cargo\.toml$
-        pass_filenames: false
-      - id: typos
-        name: typos
-        description: Check spelling in source and docs.
-        entry: typos
-        language: system
-        files: \.rs$|\.md$|Cargo\.toml$
+        files: ^(Cargo\.toml|Cargo\.lock|cargo-generate\.toml|deny\.toml|cliff\.toml|_typos\.toml|LICENSE-MIT|README\.md|src/.*\.rs|scripts/.*\.py|\.github/workflows/.*\.ya?ml)$
         pass_filenames: false
